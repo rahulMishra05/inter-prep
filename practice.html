@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>temp</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #ffffff;
+    --text: #1f2328;
+    --muted: #656d76;
+    --border: #d8dee4;
+    --accent: #2563eb;
+    --done: #8c959f;
+    --star: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px 60px; }
+  header {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0 12px;
+  }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .bar { flex: 1; min-width: 160px; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .count { font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .tools { display: flex; gap: 12px; align-items: center; margin-top: 8px; flex-wrap: wrap; font-size: 14px; }
+  .tools label { cursor: pointer; }
+  button {
+    font: inherit; font-size: 13px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover { background: #f0f0f0; }
+  nav { margin: 18px 0 8px; font-size: 14px; }
+  nav ul { margin: 0; padding-left: 18px; columns: 2; column-gap: 24px; }
+  nav li { margin-bottom: 2px; break-inside: avoid; }
+  nav a { color: var(--accent); text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  nav .n { color: var(--muted); }
+  section.part {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-top: 18px;
+    scroll-margin-top: 130px;
+  }
+  section.part h2 { font-size: 18px; margin: 0; display: flex; justify-content: space-between; gap: 12px; }
+  section.part h2 .n { font-size: 13px; font-weight: normal; color: var(--muted); white-space: nowrap; padding-top: 3px; }
+  .note { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+  h3 { font-size: 15px; margin: 16px 0 6px; color: #374151; }
+  ul.q { list-style: none; margin: 0; padding: 0; }
+  ul.q li { border-top: 1px solid #eef0f2; }
+  ul.q li:first-child { border-top: none; }
+  ul.q label { display: flex; gap: 10px; padding: 6px 0; cursor: pointer; align-items: flex-start; }
+  ul.q input { margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .num { color: var(--muted); min-width: 30px; text-align: right; flex-shrink: 0; }
+  .star { color: var(--star); }
+  li.done .txt { color: var(--done); text-decoration: line-through; }
+  .from { color: var(--muted); font-size: 13px; }
+  body.hide-done li.done { display: none; }
+  @media (max-width: 600px) {
+    nav ul { columns: 1; }
+    section.part { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>temp</h1>
+    <div class="bar-row">
+      <div class="bar"><div id="bar"></div></div>
+      <span class="count" id="total"></span>
+    </div>
+    <div class="tools">
+      <label><input type="checkbox" id="hideDone"> Hide completed</label>
+      <button id="reset" type="button" hidden>Reset progress</button>
+    </div>
+  </header>
+
+  <nav><ul id="toc"></ul></nav>
+  <main id="content"></main>
+</div>
+
+<script>
+const DATA = [
+  {
+    title: "Part 1 — Resume and project deep dive",
+    note: "These questions deserve the most attention because an intviewer can use almost any bullet on your resume as a starting point.",
+    footer: "Preparation rule: For every project answer, know the problem, your approach, alternatives considered, trade-offs, outcome, and how the outcome was measured.",
+    groups: [
+      { title: "A. Current project: Quest GPT / AI garment costing", items: [
+        ["q1", "★ Explain your current project and its business purpose."],
+        ["q2", "★ What is your individual contribution to the project?"],
+        ["q3", "Explain the complete architecture from the React frontend to the .NET backend and Azure AI Foundry."],
+        ["q4", "★ Why did you replace the fixed multi-agent workflow with a single LLM agent and an 11-tool function-calling loop?"],
+        ["q5", "How does the agent decide which tool to invoke?"],
+        ["q6", "How do you validate tool arguments before executing a tool?"],
+        ["q7", "What happens when the LLM selects the wrong tool or returns invalid arguments?"],
+        ["q8", "★ How did you measure the 60–70% reduction in analysis time?"],
+        ["q9", "What were the main performance bottlenecks before optimization?"],
+        ["q10", "★ Explain your real-time streaming implementation using Server-Sent Events, Channels, and ReadableStream."],
+        ["q11", "Why did you use SSE instead of SignalR or WebSockets?"],
+        ["q12", "How did you achieve first-token response times under 400 ms, and what exactly did that metric measure?"],
+        ["q13", "How do you handle cancellation when a user closes a streaming connection?"],
+        ["q14", "How do you prevent concurrent requests from interfering with one another?"],
+        ["q15", "★ Explain your Graph RAG implementation across 100+ documents."],
+        ["q16", "How do you ingest, chunk, index, connect, and retrieve information from documents?"],
+        ["q17", "How do you measure whether retrieval results are relevant?"],
+        ["q18", "★ Explain the hybrid business rules engine that combines natural-language rules with deterministic validation."],
+        ["q19", "Why shouldn't an LLM make every business-rule decision?"],
+        ["q20", "How did you reduce token usage by 40% through PromptBuilderService?"],
+        ["q21", "How did you measure the claimed improvement in AI response accuracy?"],
+        ["q22", "What would happen if Azure AI Foundry became unavailable?"],
+        ["q23", "How do you log and debug an incorrect AI-generated result?"],
+        ["q24", "What would you improve in this project if you had another month?"]
+      ]},
+      { title: "B. Multi-tenancy and security", items: [
+        ["q25", "★ Explain the multi-tenant architecture supporting 20+ tenants."],
+        ["q26", "How do you isolate one tenant's data from another?"],
+        ["q27", "At what layers do you enforce tenant authorization?"],
+        ["q28", "How do you prevent a user from accessing another tenant's document by changing an ID in an API request?"],
+        ["q29", "★ What is the difference between authentication and authorization?"],
+        ["q30", "How does JWT authentication work in your application?"],
+        ["q31", "How do you handle token expiration and refresh?"],
+        ["q32", "What are Azure Blob SAS URLs, and why do they expire?"],
+        ["q33", "How do you prevent unauthorized access to uploaded files?"],
+        ["q34", "What data do you store in Redis, and how do you handle cache invalidation?"],
+        ["q35", "What happens when cached tenant information becomes stale?"],
+        ["q36", "How do you handle transient failures using Polly?"],
+        ["q37", "★ Explain a production issue you solved and how you diagnosed it."]
+      ]},
+      { title: "C. Previous project: GSD Cost", items: [
+        ["q38", "Explain the architecture of GSD Cost and your responsibilities."],
+        ["q39", "★ How did you architect the Vue 3 frontend and integrate it with the .NET backend?"],
+        ["q40", "What was your approach to building the multilingual support system?"],
+        ["q41", "How did you measure the reported 40% accessibility expansion and 25% increase in user engagement?"],
+        ["q42", "How did you achieve 83% code coverage using xUnit?"],
+        ["q44", "How did you integrate the Stripe payment gateway?"],
+        ["q45", "How do payment webhooks work, and how do you handle duplicate webhook deliveries?"],
+        ["q46", "★ What is the Mediator pattern, and why did you use it?"],
+        ["q47", "What was the Activity Dashboard, and how did you implement it?"],
+        ["q48", "How did you implement third-party API integrations?"],
+        ["q49", "How did you build the three Progressive Web Apps?"],
+        ["q50", "Which technical decision from GSD Cost would you change today, and why?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 2 — C# and .NET fundamentals",
+    groups: [
+      { title: "A. C# language and OOP", items: [
+        ["q55", "Explain boxing and unboxing."],
+        ["q56", "What is the difference between ref, out, and in?"],
+        ["q58", "What is the difference between IEnumerable<T>, IQueryable<T>, and IAsyncEnumerable<T>?"],
+        ["q59", "★ How does deferred execution work in LINQ?"],
+        ["q60", "What is the difference between FirstOrDefault(), SingleOrDefault(), and Find()?"],
+        ["q61", "How do Dictionary, HashSet, and List differ?"],
+        ["q62", "What are delegates, events, and lambda expressions?"],
+        ["q65", "Explain exception handling and custom exceptions."],
+        ["q66", "How does garbage collection work, including generations and the Large Object Heap?"],
+        ["q67", "What is IDisposable, and when should you use using?"]
+      ]},
+      { title: "B. Async programming and concurrency", items: [
+        ["q69", "★ How do async and await work internally?"],
+        ["q70", "What is the difference between Task, Thread, and ValueTask?"],
+        ["q71", "★ Compare Task.WhenAll() and Task.WhenAny()."],
+        ["q72", "When should you use Task.Run(), and when should you avoid it in ASP.NET Core?"],
+        ["q73", "What is ConfigureAwait(false)?"],
+        ["q74", "How do you propagate cancellation using CancellationToken?"],
+        ["q75", "What is a race condition, and how can you prevent one?"],
+        ["q76", "Explain lock, SemaphoreSlim, and ConcurrentDictionary."],
+        ["q77", "What causes thread-pool starvation in a web application?"],
+        ["q78", "How would you process 1,000 concurrent requests to an external AI service without overwhelming it?"],
+        ["q79", "What is the difference between parallelism and concurrency?"],
+        ["q80", "How do you safely share state across concurrent requests?"]
+      ]},
+      { title: "C. ASP.NET Core and Web APIs", items: [
+        ["q81", "★ Explain the ASP.NET Core request pipeline and middleware execution order."],
+        ["q82", "How do you write custom middleware?"],
+        ["q84", "What happens if you inject a Scoped service into a Singleton?"],
+        ["q85", "What is the difference between controllers and Minimal APIs?"],
+        ["q86", "What does [ApiController] do?"],
+        ["q87", "Explain model binding, validation attributes, and API validation responses."],
+        ["q88", "How do you implement global exception handling?"],
+        ["q89", "How do you version a REST API?"],
+        ["q90", "What are idempotent HTTP methods? Why is idempotency important?"],
+        ["q91", "Explain HTTP status codes 200, 201, 204, 400, 401, 403, 404, 409, 429, and 500."],
+        ["q92", "How do JWT authentication and role-based or policy-based authorization work?"],
+        ["q93", "How do you implement rate limiting in ASP.NET Core?"],
+        ["q94", "How do you implement health checks?"],
+        ["q95", "How do you secure an API against SQL injection, broken authorization, and over-posting?"],
+        ["q96", "How do you document APIs using OpenAPI/Swagger?"],
+        ["q97", "What is CORS, and when does it matter?"],
+        ["q98", "How do you handle file uploads securely and efficiently?"],
+        ["q99", "How do you implement pagination, filtering, and sorting?"],
+        ["q100", "How would you troubleshoot an API that suddenly becomes slow?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 3 — Architecture and design patterns",
+    note: "The JD explicitly calls out microservices, event-driven systems, cloud-native architecture, Clean Architecture, DDD, code reviews, and technical documentation.",
+    groups: [
+      { items: [
+        ["q102", "How do you structure a .NET solution into API, Application, Domain, Infrastructure, and Tests?"],
+        ["q103", "What is Domain-Driven Design, and when is it useful?"],
+        ["q104", "Explain entities, value objects, aggregates, and bounded contexts."],
+        ["q106", "Explain Repository, Unit of Work, Factory, Strategy, Adapter, and Decorator patterns."],
+        ["q107", "★ What is the Mediator pattern, and how does it compare with direct service injection?"],
+        ["q108", "What are CQRS and the difference between commands and queries?"],
+        ["q109", "What is the difference between a monolith, modular monolith, and microservices?"],
+        ["q110", "★ When would you choose microservices over a modular monolith?"],
+        ["q111", "What are the disadvantages of microservices?"],
+        ["q112", "Explain synchronous versus asynchronous service communication."],
+        ["q113", "What is event-driven architecture?"],
+        ["q114", "Explain message queues, publish-subscribe, and event streaming."],
+        ["q115", "What are eventual consistency and distributed transactions?"],
+        ["q116", "What are the Saga and Outbox patterns?"],
+        ["q117", "What are the Circuit Breaker, Retry, Timeout, and Bulkhead patterns?"],
+        ["q120", "What should an architectural decision record (ADR) contain?"],
+        ["q121", "How do you conduct a code review for correctness, security, performance, and maintainability?"],
+        ["q122", "How do you mentor a junior developer whose implementation works but is poorly designed?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 4 — AI, LLMs, RAG, and agentic systems",
+    note: "This is one of the most important sections for the Termi position. Prepare to explain both your implementation and the underlying concepts.",
+    groups: [
+      { title: "A. LLM fundamentals and Azure AI Foundry", items: [
+        ["q123", "★ How does a large language model generate a response?"],
+        ["q124", "What are tokens, context windows, temperature, and top-p?"],
+        ["q125", "What is the difference between a system prompt, developer instructions, and user input?"],
+        ["q126", "What are embeddings, and how are they used?"],
+        ["q127", "What is the difference between a traditional NLP model and a generative LLM?"],
+        ["q128", "★ What is Azure AI Foundry, and what role did it play in your project?"],
+        ["q129", "How do you choose between different LLMs for a production application?"],
+        ["q130", "What is the difference between a model's training, fine-tuning, and inference stages?"],
+        ["q131", "What is the difference between model hosting and calling a managed model API?"],
+        ["q132", "How do you control token consumption, response latency, and inference costs?"],
+        ["q133", "What are hallucinations, and how can you reduce their impact?"],
+        ["q134", "How do you protect sensitive data sent to an external model?"],
+        ["q135", "What is prompt injection, and how do you defend against it?"],
+        ["q136", "How do you version and evaluate prompts as the application evolves?"]
+      ]},
+      { title: "B. RAG and Graph RAG", items: [
+        ["q137", "★ Explain the complete RAG pipeline from document ingestion to response generation."],
+        ["q138", "What are chunking strategies, and how do you choose chunk size and overlap?"],
+        ["q139", "What is the difference between keyword search, vector search, and hybrid search?"],
+        ["q140", "What is a vector database, and how does similarity search work?"],
+        ["q141", "What are cosine similarity and embedding dimensions?"],
+        ["q142", "★ What is the difference between conventional RAG and Graph RAG?"],
+        ["q143", "How do you build a graph from documents, entities, and relationships?"],
+        ["q144", "How do you retrieve information using graph relationships?"],
+        ["q145", "How would you handle a document update or deletion in the index?"],
+        ["q146", "How do you prevent retrieval of documents belonging to another tenant?"],
+        ["q147", "How do you measure retrieval quality separately from answer quality?"],
+        ["q148", "What are precision@k, recall@k, and mean reciprocal rank?"],
+        ["q149", "How do you provide source citations or evidence for an LLM-generated answer?"],
+        ["q150", "What would you do if the relevant answer was not present in the retrieved documents?"],
+        ["q151", "How would you reduce RAG latency and cost while preserving answer quality?"]
+      ]},
+      { title: "C. Function calling and AI agents", items: [
+        ["q152", "★ What is LLM function calling, and how is it different from executing code directly?"],
+        ["q153", "Explain your 11-tool function-calling loop step by step."],
+        ["q154", "Who actually executes a tool call: the LLM or the application?"],
+        ["q156", "How do you handle invalid, repeated, or conflicting tool calls?"],
+        ["q157", "How do you prevent an agent from calling tools it is not authorized to use?"],
+        ["q158", "What is the difference between a workflow, an agent, and a multi-agent system?"],
+        ["q159", "★ Why might a single agent with tools be preferable to a multi-agent architecture?"],
+        ["q160", "When would you choose a multi-agent architecture instead?"],
+        ["q161", "What are the trade-offs of AutoGen and other agent orchestration frameworks?"],
+        ["q162", "What is A2A, and how does agent-to-agent communication differ from tool calling?"],
+        ["q163", "What is the Model Context Protocol (MCP), and how is it different from A2A?"],
+        ["q164", "How do you prevent infinite agent loops and excessive tool calls?"],
+        ["q165", "How would you make tool execution resilient to retries and duplicate requests?"],
+        ["q166", "How would you implement human approval for sensitive or irreversible agent actions?"]
+      ]},
+      { title: "D. AI reliability, evaluation, and production", items: [
+        ["q167", "★ How do you evaluate an AI system before releasing it to production?"],
+        ["q168", "What are the differences between offline evaluation and online monitoring?"],
+        ["q169", "How do you test nondeterministic LLM outputs?"],
+        ["q170", "How would you create a regression test dataset for an AI assistant?"],
+        ["q171", "What is the difference between hallucination rate, answer relevance, and groundedness?"],
+        ["q172", "How do you detect prompt regressions or model behaviour changes?"],
+        ["q173", "What metrics would you monitor for an AI-powered application?"],
+        ["q174", "How would you handle provider rate limits, timeouts, and service outages?"],
+        ["q175", "How do you implement streaming responses without losing error information?"],
+        ["q176", "How would you control concurrency when many users invoke the AI simultaneously?"],
+        ["q177", "What is model fine-tuning, and when would it be more appropriate than RAG?"],
+        ["q178", "What are guardrails, content filtering, and output validation?"],
+        ["q179", "How would you handle sensitive or confidential documents in an enterprise AI system?"],
+        ["q180", "How would you explain an incorrect AI answer to a client and investigate the cause?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 5 — SQL Server, PostgreSQL, Redis, and data engineering",
+    note: "The public Helm360 intview reports also make SQL a sensible preparation priority.",
+    groups: [
+      { items: [
+        ["q181", "★ Explain primary keys, foreign keys, unique constraints, and indexes."],
+        ["q182", "What is the difference between clustered and nonclustered indexes in SQL Server?"],
+        ["q183", "★ What is a database execution plan, and how do you use it to diagnose a slow query?"],
+        ["q184", "What is the difference between an index seek and an index scan?"],
+        ["q185", "Explain INNER JOIN, LEFT JOIN, RIGHT JOIN, and FULL OUTER JOIN."],
+        ["q186", "What is the difference between WHERE and HAVING?"],
+        ["q187", "Explain GROUP BY, aggregate functions, and window functions."],
+        ["q188", "★ Write a query to find the second-highest salary, including handling duplicate salaries."],
+        ["q189", "Write a query to find duplicate records."],
+        ["q190", "Write a query to find records present in one table but missing from another."],
+        ["q191", "What are CTEs, derived tables, and temporary tables?"],
+        ["q192", "Explain ROW_NUMBER(), RANK(), and DENSE_RANK()."],
+        ["q193", "What are transactions and ACID properties?"],
+        ["q194", "Explain isolation levels, dirty reads, non-repeatable reads, and phantom reads."],
+        ["q195", "What is a deadlock, and how do you diagnose and prevent it?"],
+        ["q196", "What is database normalization, and when might denormalization help?"],
+        ["q197", "★ How do you optimize an Entity Framework Core query?"],
+        ["q198", "What is the difference between tracking and AsNoTracking()?"],
+        ["q199", "What is the N+1 query problem, and how do you avoid it?"],
+        ["q200", "Explain eager loading, explicit loading, and lazy loading."],
+        ["q201", "How do EF Core migrations work, and how do you apply them safely in production?"],
+        ["q202", "What is optimistic concurrency, and how can you implement it?"],
+        ["q203", "How do you implement pagination efficiently for large datasets?"],
+        ["q204", "What is Redis, and when would you use it instead of querying SQL Server?"],
+        ["q205", "Explain cache-aside, write-through, and write-behind caching."],
+        ["q206", "How do you prevent cache stampedes and stale cache data?"],
+        ["q207", "How would you handle cache consistency in a multi-tenant system?"],
+        ["q208", "What is the difference between SQL databases and NoSQL databases?"],
+        ["q209", "How would you model an audit trail for sensitive enterprise operations?"],
+        ["q210", "How would you safely process millions of records during a data migration?"]
+      ]},
+      { title: "SQL exercises to practise", note: "Try to write the SQL, not just explain it.", items: [
+        ["sx1", "Find the second-highest distinct salary in a department."],
+        ["sx2", "Find the latest invoice for each client."],
+        ["sx3", "Find customers with no invoices."],
+        ["sx4", "Identify duplicate records based on a composite key."],
+        ["sx5", "Calculate monthly revenue and a running total."],
+        ["sx6", "Find employees earning above their department's average."],
+        ["sx7", "Find missing numbers in a sequence from 1 to 100."],
+        ["sx8", "Diagnose why a query that used to run in one second now takes 20 seconds."]
+      ]}
+    ]
+  },
+  {
+    title: "Part 6 — Azure, cloud-native development, and DevOps",
+    groups: [
+      { items: [
+        ["q211", "★ Explain the Azure services you have personally used."],
+        ["q212", "What is Azure AI Foundry, and how does it fit into a cloud architecture?"],
+        ["q213", "What is Azure Blob Storage, and how do containers and blobs work?"],
+        ["q214", "What is a SAS URL, and how do you restrict its permissions and lifetime?"],
+        ["q215", "How do you store and manage secrets in production?"],
+        ["q216", "What is Microsoft Entra ID, and how does it relate to application authentication?"],
+        ["q217", "How do you configure application settings for development, testing, and production?"],
+        ["q218", "What is the difference between horizontal and vertical scaling?"],
+        ["q219", "How do you deploy a .NET application using Docker?"],
+        ["q220", "What is the difference between a container and a virtual machine?"],
+        ["q221", "What are liveness, readiness, and startup probes?"],
+        ["q222", "★ How would you implement a CI/CD pipeline for a .NET application?"],
+        ["q223", "What is the difference between continuous integration and continuous deployment?"],
+        ["q224", "What are deployment slots, rolling deployments, and blue-green deployments?"],
+        ["q225", "How would you roll back a faulty deployment?"],
+        ["q226", "How do you monitor errors, latency, dependencies, and resource utilization?"],
+        ["q227", "How do you handle Azure service outages and regional failures?"],
+        ["q228", "What is infrastructure as code, and why is it useful?"],
+        ["q229", "What is the difference between Azure Functions and a continuously running web API?"],
+        ["q230", "How would you design a secure, scalable cloud-native AI service?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 7 — React, TypeScript, Vue, and frontend architecture",
+    note: "Your resume lists both React and Vue. An intviewer may use either to check whether your full-stack experience is hands-on.",
+    groups: [
+      { items: [
+        ["q231", "★ Explain the React component lifecycle and how hooks fit into it."],
+        ["q232", "What is the difference between props and state?"],
+        ["q233", "What are useState, useEffect, useMemo, and useCallback?"],
+        ["q234", "What causes unnecessary React re-renders, and how would you diagnose them?"],
+        ["q235", "How do you manage global state using Zustand?"],
+        ["q236", "What is TanStack Query, and how is it different from Zustand?"],
+        ["q237", "How do you handle API loading, error, caching, and retry states?"],
+        ["q238", "How do you implement authentication and protect frontend routes?"],
+        ["q239", "How do you upload multiple images and display upload progress?"],
+        ["q240", "★ How would you stream an LLM response into a React interface using ReadableStream?"],
+        ["q242", "What is TypeScript, and how do interfaces, types, and generics help?"],
+        ["q243", "What are union types, optional properties, and type narrowing?"],
+        ["q244", "How do you handle form validation and API errors?"],
+        ["q245", "How do you prevent XSS and safely render user-generated content?"],
+        ["q246", "What is internationalization, and how do you implement multilingual support?"],
+        ["q247", "What are the differences between Vue 3 Composition API and React hooks?"],
+        ["q248", "What is the difference between client-side rendering and server-side rendering?"],
+        ["q249", "How would you optimize a large frontend application?"],
+        ["q250", "How do you test React components and frontend interactions?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 8 — Testing, quality, and integration design",
+    groups: [
+      { items: [
+        ["q251", "★ What is the difference between unit, integration, contract, and end-to-end tests?"],
+        ["q252", "What is mocking, and when can excessive mocking become harmful?"],
+        ["q253", "How do you test a service that calls an external LLM API?"],
+        ["q254", "How do you test retry and timeout behaviour?"],
+        ["q255", "What does code coverage tell you, and what does it not tell you?"],
+        ["q256", "How do you test authorization and tenant isolation?"],
+        ["q257", "How do you test streaming endpoints?"],
+        ["q258", "How do you test webhook idempotency?"],
+        ["q259", "What is contract testing, and why is it useful for integrations?"],
+        ["q260", "How would you test a system that depends on multiple unreliable external APIs?"],
+        ["q261", "How do you decide which regression tests to run before a release?"],
+        ["q262", "What do you do when a critical bug is found shortly before deployment?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 9 — System design and senior-level scenarios",
+    note: "These questions test whether you can apply your knowledge to systems larger than a single API or feature.",
+    groups: [
+      { items: [
+        ["q263", "★ Design a multi-tenant AI assistant for a law firm."],
+        ["q264", "How would you connect an LLM to Elite 3E and other enterprise systems?"],
+        ["q265", "How would you ensure that a lawyer can access only authorized client records?"],
+        ["q266", "Design a RAG system that ingests millions of documents across multiple tenants."],
+        ["q267", "How would you design a real-time chat system that streams AI responses to thousands of users?"],
+        ["q268", "How would you handle a request that requires calling five external APIs?"],
+        ["q269", "How would you design an asynchronous job-processing system for long-running AI analysis?"],
+        ["q270", "How would you ensure that retries don't execute a payment or other sensitive action twice?"],
+        ["q271", "How would you design an audit trail for every AI tool call?"],
+        ["q272", "How would you support model-provider switching without rewriting the entire application?"],
+        ["q273", "How would you reduce the cost of an AI feature while preserving answer quality?"],
+        ["q274", "How would you scale a service that is limited by external LLM rate limits?"],
+        ["q275", "How would you design observability across APIs, queues, databases, and LLM calls?"],
+        ["q276", "How would you perform a zero-downtime database migration?"],
+        ["q277", "How would you decide whether a new requirement belongs in the existing service or a separate microservice?"],
+        ["q278", "A production deployment causes a 30% increase in API latency. How do you investigate it?"],
+        ["q279", "The AI returns a plausible but incorrect financial figure. How do you prevent this class of error?"],
+        ["q280", "An external legal platform changes its API without notice. How do you make your integration resilient?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 10 — Coding and practical exercises",
+    note: "For a senior full-stack .NET role, prepare to explain your approach and complexity, not just produce working code.",
+    groups: [
+      { title: "1. C# coding (DSA) — Level 1 Easy", note: "Highest priority. Solve these without LINQ first, then use LINQ where appropriate. Goal: basic logic, loops, collections, strings, arrays, and LINQ fundamentals.", items: [
+        ["dsa1", "Reverse a string without using Reverse(). (Strings)"],
+        ["dsa2", "Check whether a string is a palindrome. (Strings)"],
+        ["dsa3", "Find the second-largest number in an array. (Arrays)"],
+        ["dsa4", "Find the largest and smallest numbers in an array. (Arrays)"],
+        ["dsa5", "Count the occurrence of each character in a string. (Dictionary)"],
+        ["q317", "Find duplicate elements in an array. (HashSet)"],
+        ["dsa7", "Remove duplicates from an array. (HashSet)"],
+        ["q316", "Find the missing number in an array from 1 to N. (Mathematics)"],
+        ["dsa9", "Find the frequency of each element in an array. (Dictionary)"],
+        ["dsa10", "Check whether two strings are anagrams. (Strings)"],
+        ["q318", "Find the first non-repeating character in a string. (Dictionary)"],
+        ["dsa12", "Move all zeros to the end of an array. (Arrays)"],
+        ["dsa13", "Find the sum of all elements in an array without using Sum(). (Loops)"],
+        ["dsa14", "Reverse the words in a sentence. (Strings)"],
+        ["dsa15", "Find common elements between two arrays. (HashSet)"],
+        ["dsa16", "Swap two numbers without using a third variable. (Mathematics)"],
+        ["dsa17", "Check whether a number is prime. (Mathematics)"],
+        ["dsa18", "Generate Fibonacci series. (Loops)"],
+        ["dsa19", "Find factorial using recursion and iteration. (Recursion)"],
+        ["dsa20", "Find the count of vowels and consonants in a string. (Strings)"]
+      ]},
+      { title: "1. C# coding — LINQ-specific", items: [
+        ["dsa21", "Find the second-highest salary from an employee collection."],
+        ["q319", "Group employees by department and calculate average salary."],
+        ["dsa23", "Find employees whose salary is greater than the department's average salary."],
+        ["dsa24", "Find duplicate names from a collection using LINQ."],
+        ["dsa25", "Convert a list of employees into a dictionary using EmployeeId as the key."],
+        ["dsa26", "Find the top three highest-paid employees."],
+        ["dsa27", "Perform an inner join between Employee and Department collections."],
+        ["dsa28", "Find employees who don't belong to any department."],
+        ["dsa29", "Sort employees by salary descending and then by name ascending."],
+        ["dsa30", "Find the department having the maximum number of employees."]
+      ]},
+      { title: "1. C# coding (DSA) — Level 2 Medium: arrays and strings", note: "Very important for 4+ YOE. Goal: problem-solving efficiency, time complexity, and common interview patterns.", items: [
+        ["dsa31", "Find two numbers whose sum equals a given target. (Two Sum)"],
+        ["dsa32", "Find three numbers whose sum equals zero. (Three Sum)"],
+        ["dsa33", "Find the maximum sum of a contiguous subarray. (Kadane's Algorithm)"],
+        ["dsa34", "Find the longest substring without repeating characters. (Sliding Window)"],
+        ["dsa35", "Find the longest common prefix among strings. (Strings)"],
+        ["dsa36", "Rotate an array by K positions. (Arrays)"],
+        ["dsa37", "Merge two sorted arrays without using additional sorting. (Two Pointers)"],
+        ["dsa38", "Find the majority element in an array. (Boyer-Moore)"],
+        ["dsa39", "Find the intersection of two arrays, including duplicates. (HashMap)"],
+        ["dsa40", "Find all pairs with a given difference. (HashSet)"],
+        ["dsa41", "Find the product of an array except self without division. (Prefix/Suffix)"],
+        ["dsa42", "Find the longest consecutive sequence in an array. (HashSet)"],
+        ["dsa43", "Group anagrams together. (HashMap)"],
+        ["dsa44", "Find the minimum number of platforms required for trains. (Sorting)"],
+        ["dsa45", "Find the maximum profit from buying and selling stock once. (Greedy)"]
+      ]},
+      { title: "1. C# coding (DSA) — Level 2 Medium: stack and queue", items: [
+        ["dsa46", "Implement a stack using an array. (Stack)"],
+        ["dsa47", "Implement a queue using two stacks. (Queue)"],
+        ["dsa48", "Check whether parentheses are balanced. (Stack)"],
+        ["dsa49", "Find the next greater element for every array element. (Stack)"],
+        ["dsa50", "Implement a Min Stack that returns the minimum element in O(1). (Stack)"],
+        ["dsa51", "Implement a circular queue. (Queue)"],
+        ["dsa52", "Evaluate a postfix expression. (Stack)"]
+      ]},
+      { title: "1. C# coding (DSA) — Level 2 Medium: searching and sorting", items: [
+        ["dsa53", "Implement binary search iteratively and recursively."],
+        ["dsa54", "Implement merge sort."],
+        ["dsa55", "Implement quick sort."],
+        ["dsa56", "Find the first and last occurrence of an element in a sorted array."],
+        ["dsa57", "Search an element in a rotated sorted array."],
+        ["dsa58", "Find the Kth largest element in an array."],
+        ["dsa59", "Merge overlapping intervals."],
+        ["dsa60", "Find the minimum element in a rotated sorted array."]
+      ]},
+      { title: "1. C# coding (DSA) — Level 2 Medium: linked lists", items: [
+        ["dsa61", "Reverse a singly linked list."],
+        ["dsa62", "Find the middle node of a linked list."],
+        ["dsa63", "Detect a cycle in a linked list."],
+        ["dsa64", "Find the starting point of a linked-list cycle."],
+        ["dsa65", "Merge two sorted linked lists."],
+        ["dsa66", "Remove the Nth node from the end of a linked list."],
+        ["dsa67", "Find the intersection point of two linked lists."]
+      ]},
+      { title: "1. C# coding (DSA) — Level 3 Hard", note: "Goal: strong problem-solving on questions that set experienced developers apart.", items: [
+        ["dsa68", "Find the median of two sorted arrays. (Binary Search)"],
+        ["dsa69", "Find the longest palindromic substring. (Dynamic Programming)"],
+        ["dsa70", "Find the longest increasing subsequence. (Dynamic Programming)"],
+        ["dsa71", "Find the minimum window substring containing all characters of another string. (Sliding Window)"],
+        ["dsa72", "Find the maximum sliding window element. (Deque)"],
+        ["dsa73", "Implement an LRU Cache. (Dictionary + LinkedList)"],
+        ["dsa74", "Implement an LFU Cache. (HashMap + Frequency)"],
+        ["dsa75", "Find the shortest path in a weighted graph. (Dijkstra)"],
+        ["dsa76", "Find whether a graph contains a cycle. (DFS/BFS)"],
+        ["dsa77", "Find the number of islands in a 2D matrix. (DFS/BFS)"],
+        ["dsa78", "Find the top K frequent elements. (Heap)"],
+        ["dsa79", "Solve the N-Queens problem. (Backtracking)"],
+        ["dsa80", "Find the minimum coins required to make a given amount. (Dynamic Programming)"],
+        ["dsa81", "Find the edit distance between two strings. (Dynamic Programming)"],
+        ["dsa82", "Implement a Trie for prefix searching. (Tree)"],
+        ["dsa83", "Find the maximum area of water a container can hold. (Two Pointers)"],
+        ["dsa84", "Implement word search in a 2D grid. (Backtracking)"],
+        ["dsa85", "Find the shortest transformation sequence between two words. (BFS)"]
+      ]},
+      { title: "2. Coding efficiency — Level 1 Easy", note: "Code that looks like what you'd write in a real .NET project. Give this the same weight as the Medium DSA questions. ★ = particularly useful for your .NET background.", items: [
+        ["eff1", "Write a method that accepts a list of employees and returns employees based on a department ID."],
+        ["eff2", "Convert a list of objects into a dictionary while handling duplicate keys."],
+        ["eff3", "Write a reusable pagination method for any collection."],
+        ["eff4", "Write an extension method to check whether a string is null, empty, or whitespace."],
+        ["eff5", "Implement a method that removes duplicate objects based on their ID."],
+        ["eff6", "Write a method that safely parses a string into an integer."],
+        ["eff7", "Implement sorting with multiple dynamic sorting conditions."],
+        ["eff8", "Write a generic method to filter a collection based on a predicate."],
+        ["eff9", "Convert a nested list into a flattened list."],
+        ["eff10", "Implement a method that groups transactions by month and calculates their total."]
+      ]},
+      { title: "2. Coding efficiency — Level 2 Medium", items: [
+        ["eff11", "Implement a generic caching mechanism using Dictionary."],
+        ["eff12", "★ Implement a rate limiter that allows only N requests per user within a given time window."],
+        ["q325", "★ Write a retry mechanism with exponential backoff."],
+        ["eff14", "Implement a method to merge two lists of objects based on their IDs."],
+        ["eff15", "Create a method that compares two objects and returns the modified properties."],
+        ["eff16", "Implement a custom LINQ-like Where method using IEnumerable and yield return."],
+        ["eff17", "★ Write a method that processes 10,000 records in batches of 500."],
+        ["q321", "★ Implement a method that executes multiple asynchronous operations with a maximum concurrency limit."],
+        ["eff19", "Create a reusable validation engine for multiple object types."],
+        ["eff20", "Implement a file-processing method that reads a large file without loading everything into memory."],
+        ["eff21", "Implement a method to detect duplicate API requests using an idempotency key."],
+        ["eff22", "Write a method to safely update a shared Dictionary when multiple threads access it."],
+        ["eff23", "★ Implement a producer-consumer pattern using Channel."],
+        ["eff24", "★ Create a method that cancels a long-running operation using CancellationToken."]
+      ]},
+      { title: "2. Coding efficiency — Level 3 Hard", items: [
+        ["eff25", "★ Implement an LRU cache with O(1) Get and Put operations."],
+        ["q320", "Implement a thread-safe in-memory cache with expiration."],
+        ["eff27", "★ Build a background job processor that supports multiple workers."],
+        ["eff28", "★ Implement a circuit breaker pattern."],
+        ["eff29", "Build a lightweight dependency injection container."],
+        ["eff30", "Implement a task scheduler that supports priorities and cancellation."],
+        ["eff31", "★ Create a concurrent file-processing pipeline using Channels."],
+        ["eff32", "Implement a distributed locking simulation."],
+        ["eff33", "Build a basic event aggregator or publish-subscribe mechanism."],
+        ["eff34", "Implement a batch-processing engine with retry, failure handling, and dead-letter processing."]
+      ]},
+      { title: "3. .NET project implementation — Level 1 Easy", note: "Machine-coding-round tasks in a real ASP.NET Core project. Prioritize 1–20: you should build these without constantly checking documentation.", items: [
+        ["net1", "Create a CRUD Web API for Employee. (Controller, Service, Repository, EF Core)"],
+        ["net2", "Implement dependency injection. (Interface, implementation, registration)"],
+        ["net3", "Implement DTO mapping. (Entity to DTO and DTO to Entity)"],
+        ["net4", "Implement global exception handling. (Exception middleware)"],
+        ["net5", "Implement API request validation. (Data Annotations or FluentValidation)"],
+        ["q324", "Implement pagination, filtering and sorting. (Query parameters + LINQ)"],
+        ["net7", "Implement JWT authentication. (Login, token generation, validation)"],
+        ["net8", "Implement role-based authorization. (Roles and authorization policies)"]
+      ]},
+      { title: "3. .NET project implementation — Level 2 Medium", items: [
+        ["net9", "Implement a many-to-many relationship using EF Core. (Employee, Project, EmployeeProject)"],
+        ["net10", "Implement transaction management. (Database transactions and rollback)"],
+        ["net11", "Implement soft delete. (IsDeleted and global query filters)"],
+        ["net12", "Implement Redis caching in Web API. (Cache-aside pattern)"],
+        ["net13", "Implement file upload to Azure Blob Storage. (Upload, download, SAS URL)"],
+        ["net14", "Implement a background job. (BackgroundService and hosted services)"],
+        ["net15", "Implement API rate limiting. (Built-in ASP.NET Core rate limiter)"],
+        ["net16", "Implement an API using MediatR and CQRS. (Commands, queries, handlers)"],
+        ["net17", "Implement audit logging. (CreatedBy, ModifiedBy, timestamps)"],
+        ["net18", "Implement multi-tenant data isolation. (Tenant resolution and query filtering)"],
+        ["net19", "Implement real-time communication. (SignalR Hub)"],
+        ["net20", "Implement integration with an external REST API. (HttpClientFactory, timeout, retry)"]
+      ]},
+      { title: "3. .NET project implementation — Level 3 Hard", note: "More advanced; useful for senior-level preparation.", items: [
+        ["net21", "Design a multi-tenant SaaS application with tenant-specific database isolation."],
+        ["net22", "Implement a resilient API using Polly with retry, timeout and circuit breaker."],
+        ["net23", "Implement a background processing system using Channels and multiple workers."],
+        ["net24", "Implement a secure file upload service using Azure Blob Storage and SAS tokens."],
+        ["net25", "Implement a distributed caching strategy using Redis."],
+        ["net26", "Implement an idempotent payment/order API to prevent duplicate transactions."],
+        ["net27", "Implement an outbox pattern to reliably publish events after database transactions."],
+        ["net28", "Implement a complete authentication and authorization system using JWT, refresh tokens and role-based access."],
+        ["q326", "Implement an SSE-based streaming API that streams LLM responses to a React frontend."],
+        ["net30", "Implement a scalable notification system using SignalR and background processing."]
+      ]},
+      { title: "4. SQL Server — Level 1 Easy", note: "Very high priority. Be comfortable with JOINs, GROUP BY, subqueries, CTEs, window functions, stored procedures, indexes, and query optimization. Goal: basic SELECT, filtering, grouping, and joins.", items: [
+        ["sql1", "Retrieve all employees from an Employee table. (SELECT)"],
+        ["sql2", "Find employees whose salary is greater than ₹50,000. (WHERE)"],
+        ["sql3", "Find employees whose names start with 'A'. (LIKE)"],
+        ["sql4", "Retrieve employees ordered by salary descending. (ORDER BY)"],
+        ["sql5", "Find the maximum salary. (MAX)"],
+        ["sql6", "Find the second-highest salary. (Subquery)"],
+        ["sql7", "Count the total number of employees. (COUNT)"],
+        ["sql8", "Find the average salary of employees. (AVG)"],
+        ["sql9", "Find duplicate employee names. (GROUP BY, HAVING)"],
+        ["sql10", "Retrieve distinct department IDs. (DISTINCT)"],
+        ["sql11", "Find employees hired after a particular date. (Date functions)"],
+        ["sql12", "Find employees whose department ID is NULL. (IS NULL)"],
+        ["sql13", "Retrieve the top five highest-paid employees. (TOP)"],
+        ["sql14", "Find the total salary paid to each department. (GROUP BY)"],
+        ["sql15", "Retrieve employees with salaries between 30,000 and 60,000. (BETWEEN)"]
+      ]},
+      { title: "4. SQL Server — Level 1 Easy: JOINs", items: [
+        ["sql16", "Retrieve employees with their department names using INNER JOIN."],
+        ["sql17", "Retrieve all employees, including those without a department, using LEFT JOIN."],
+        ["sql18", "Retrieve departments that don't have employees."],
+        ["sql19", "Find employees who belong to the same department."],
+        ["sql20", "Join three tables: Employee, Department and Project."],
+        ["sql21", "Find employees who are assigned to more than one project."],
+        ["sql22", "Find customers who have never placed an order."]
+      ]},
+      { title: "4. SQL Server — Level 2 Medium: subqueries and CTEs", note: "Must prepare. Goal: advanced queries commonly asked in experienced-developer interviews.", items: [
+        ["sql23", "Find the second-highest salary without using TOP."],
+        ["sql24", "Find the Nth highest salary."],
+        ["sql25", "Find employees earning more than their department's average salary."],
+        ["sql26", "Find the department with the highest average salary."],
+        ["q329", "Find duplicate records and delete duplicates while keeping one record."],
+        ["sql28", "Find employees who earn more than at least one employee in another department."],
+        ["sql29", "Find employees who have the same salary."],
+        ["sql30", "Write a CTE to retrieve employees earning more than ₹50,000."],
+        ["sql31", "Write a recursive CTE to generate numbers from 1 to 100."]
+      ]},
+      { title: "4. SQL Server — Level 2 Medium: window functions", items: [
+        ["sql32", "Find the second-highest salary using DENSE_RANK()."],
+        ["sql33", "Rank employees based on salary within each department."],
+        ["sql34", "Find the top three highest-paid employees in each department."],
+        ["sql35", "Calculate a running total of employee salaries."],
+        ["sql36", "Find the previous month's sales using LAG()."],
+        ["sql37", "Find the next month's sales using LEAD()."],
+        ["sql38", "Calculate the cumulative average salary."],
+        ["sql39", "Assign row numbers to employees based on department and salary."],
+        ["sql40", "Find the difference between an employee's salary and the department's highest salary."]
+      ]},
+      { title: "4. SQL Server — Level 2 Medium: practical queries", items: [
+        ["sql41", "Write a query to implement pagination using OFFSET and FETCH."],
+        ["sql42", "Find customers who placed more than three orders."],
+        ["sql43", "Find the latest order for each customer."],
+        ["sql44", "Find customers who placed orders in consecutive months."],
+        ["sql45", "Retrieve records created within the last seven days."],
+        ["sql46", "Write a query to calculate monthly revenue."],
+        ["sql47", "Find products that have never been sold."],
+        ["sql48", "Find employees who joined in the same month and year."],
+        ["sql49", "Retrieve the latest record for each user from a transaction table."],
+        ["sql50", "Find gaps in a sequential ID series."]
+      ]},
+      { title: "4. SQL Server — Level 3 Hard", note: "Goal: complex queries, performance optimization, and database-level engineering.", items: [
+        ["sql51", "Find the median salary of employees. (PERCENTILE_CONT)"],
+        ["sql52", "Find gaps and islands in a sequence of dates. (Window Functions)"],
+        ["sql53", "Find consecutive login days for each user. (CTE + Window Functions)"],
+        ["sql54", "Calculate a seven-day rolling average of sales. (Window Functions)"],
+        ["sql55", "Find the longest consecutive purchase streak for each customer. (Gaps and Islands)"],
+        ["sql56", "Find the percentage contribution of each department to total salary. (Window Functions)"],
+        ["sql57", "Pivot monthly sales into separate columns. (PIVOT)"],
+        ["sql58", "Convert multiple columns into rows. (UNPIVOT)"],
+        ["sql59", "Find overlapping date ranges between records. (Date comparisons)"],
+        ["sql60", "Find the top N products by sales for each category. (DENSE_RANK)"],
+        ["sql61", "Find customers whose monthly spending increased for three consecutive months. (CTE + LAG)"],
+        ["sql62", "Write a query to identify duplicate transactions based on multiple columns. (GROUP BY)"],
+        ["sql63", "Find employees whose salary increased compared to the previous year. (LAG)"]
+      ]},
+      { title: "4. SQL Server — implementation and optimization", note: "Not all query-writing problems, but essential at your experience level.", items: [
+        ["sql64", "Write a stored procedure with input and output parameters."],
+        ["sql65", "Write a stored procedure that supports optional filtering parameters."],
+        ["sql66", "Implement a transaction using BEGIN TRANSACTION, COMMIT and ROLLBACK."],
+        ["sql67", "Implement TRY...CATCH error handling in a stored procedure."],
+        ["sql68", "Create an index to improve the performance of a frequently executed query."],
+        ["sql69", "Identify why a query is performing a table scan instead of an index seek."],
+        ["sql70", "Optimize a query containing multiple JOINs and subqueries."],
+        ["sql71", "Implement optimistic concurrency using a ROWVERSION column."],
+        ["sql72", "Identify and resolve a deadlock between two transactions."],
+        ["sql73", "Implement a trigger to maintain an audit table."],
+        ["sql74", "Implement a SQL Server pagination procedure."],
+        ["sql75", "Compare clustered and non-clustered indexes and demonstrate when to use each."]
+      ]}
+    ]
+  },
+  {
+    title: "Part 11 — Remaining technologies listed on your resume",
+    note: "These topics are easier to overlook because they appear in the skills section rather than your project bullets.",
+    footer: "You should prioritize the technologies you have actually used in production. If Angular, Blazor, or Podman were only exploratory, be clear about that.",
+    groups: [
+      { items: [
+        ["q337", "What is the difference between Blazor Server and Blazor WebAssembly?"],
+        ["q338", "What is the difference between Razor Pages and MVC?"],
+        ["q339", "What are Angular components, services, and dependency injection?"],
+        ["q340", "How does PostgreSQL differ from SQL Server in indexing, JSON support, and query behaviour?"],
+        ["q341", "What are Docker images, containers, volumes, and networks?"],
+        ["q342", "What is the difference between Docker and Podman?"],
+        ["q343", "How do you create a CI workflow using GitHub Actions?"],
+        ["q344", "How do you handle JWT signing keys and secret rotation?"],
+        ["q345", "How do you write and run xUnit tests in a CI pipeline?"],
+        ["q346", "How do you use Git branching, pull requests, and conflict resolution in a team?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 12 — HR and behavioral questions",
+    groups: [
+      { items: [
+        ["q347", "Tell me about yourself."],
+        ["q348", "Why do you want to leave your current organization?"],
+        ["q349", "Why Helm360?"],
+        ["q350", "Why are you interested in the Termi product?"],
+        ["q351", "Your resume says 4+ years, but the JD asks for 5–7+ years. Why should we consider you?"],
+        ["q352", "What is your biggest professional achievement?"],
+        ["q354", "Describe a time you had to learn a new technology quickly."],
+        ["q355", "How do you handle criticism during code reviews?"],
+        ["q356", "What are your strengths and weaknesses?"],
+        ["q357", "What are your short-term and long-term career goals?"],
+        ["q358", "What are your current and expected CTC?"],
+        ["q359", "What is your notice period and earliest joining date?"],
+        ["q360", "Are you comfortable with the required working hours and office arrangements?"],
+        ["q361", "Do you have any other offers or ongoing intviews?"],
+        ["q362", "What questions do you have for us?"]
+      ]}
+    ]
+  },
+  {
+    title: "Part 13 — OOP, SOLID, and patterns (learn in this order)",
+    groups: [
+      { title: "A. OOP Foundations — Learn in This Order", items: [
+        ["o1", "What is Object-Oriented Programming (OOP), and why is it used?"],
+        ["o2", "What is a class, and what is an object?"],
+        ["o3", "What are fields, properties, and methods in C#?"],
+        ["o4", "What are constructors? Explain default, parameterized, and constructor overloading."],
+        ["o5", "What is the this keyword in C#?"],
+        ["o6", "What is the static keyword, and when should you use it?"]
+      ]},
+      { title: "B. The Four Pillars of OOP", items: [
+        ["o7", "What is encapsulation? Explain with a C# example."],
+        ["o8", "What is abstraction? How is it different from encapsulation?"],
+        ["o9", "What is inheritance? Explain with a C# example."],
+        ["o10", "What is polymorphism? Explain compile-time and runtime polymorphism."],
+        ["o11", "Explain all four OOP pillars using a real-world example."]
+      ]},
+      { title: "C. Inheritance and Polymorphism — Advanced Concepts", items: [
+        ["o12", "What is the difference between an abstract class and an interface?"],
+        ["o13", "Explain virtual, override, abstract, and sealed."],
+        ["o14", "What is the difference between method overloading and method overriding?"],
+        ["o15", "What is method hiding using new, and how is it different from overriding?"],
+        ["o16", "Does C# support multiple inheritance? Explain class inheritance versus interface implementation."],
+        ["o17", "Explain the access modifiers in C#: public, private, protected, internal, and protected internal."],
+        ["o18", "What is composition, and how does it differ from inheritance?"]
+      ]},
+      { title: "D. Object Behaviour and Type System", items: [
+        ["o19", "What is the difference between value types and reference types?"],
+        ["o20", "What is the difference between == and .Equals() in C#?"],
+        ["o21", "What is the difference between a record and a class?"],
+        ["o22", "What is the difference between a struct, a class, and a record struct?"],
+        ["o23", "What is an immutable object, and how can you create one in C#?"],
+        ["o24", "What is the difference between const, readonly, and static readonly?"],
+        ["o25", "What are generics in C#, and why are they useful?"]
+      ]},
+      { title: "E. SOLID Principles", items: [
+        ["o26", "What are the SOLID principles, and why are they important?"],
+        ["o27", "Explain the Single Responsibility Principle (SRP) with an example."],
+        ["o28", "Explain the Open/Closed Principle (OCP)."],
+        ["o29", "Explain the Liskov Substitution Principle (LSP)."],
+        ["o30", "Explain the Interface Segregation Principle (ISP)."],
+        ["o31", "Explain the Dependency Inversion Principle (DIP)."],
+        ["o32", "How does dependency injection help implement SOLID principles?"]
+      ]},
+      { title: "F. Design Patterns", items: [
+        ["o33", "What is a design pattern, and why do developers use them?"],
+        ["o34", "Explain the Factory pattern with a C# example."],
+        ["o35", "Explain the Strategy pattern and a practical use case."],
+        ["o36", "What is the Repository pattern, and when should you use it?"],
+        ["o37", "What is the Decorator pattern?"],
+        ["o38", "What is the Adapter pattern?"],
+        ["o39", "What is the Mediator pattern, and how does MediatR use it?"],
+        ["o40", "Explain the Singleton pattern and its potential drawbacks."],
+        ["o41", "When can design patterns make code unnecessarily complex?"]
+      ]},
+      { title: "G. Applying OOP in .NET Architecture", items: [
+        ["o42", "How does dependency injection work in ASP.NET Core?"],
+        ["o43", "Explain Singleton, Scoped, and Transient service lifetimes."],
+        ["o44", "What is Clean Architecture, and how does it support separation of concerns?"],
+        ["o45", "What are entities and value objects in Domain-Driven Design (DDD)?"],
+        ["o46", "What is CQRS, and how does it work with the Mediator pattern?"],
+        ["o47", "How would you refactor a large class that has too many responsibilities?"],
+        ["o48", "How would you design a payment or notification service using interfaces and polymorphism?"],
+        ["o49", "How would you unit-test a class that depends on external services?"]
+      ]}
+    ]
+  }
+];
+
+// Shortlist of the most likely questions. Items reference IDs above, so a tick
+// here is the same tick as in the original section.
+DATA.push({
+  title: "Most Likely Intview Questions",
+  note: "A shortlist of the questions most likely to be asked. Each one also appears in its original section, and ticking it in either place ticks both.",
+  ref: true,
+  groups: [
+    { title: "Project and resume", items: ["q1", "q2", "q3", "q4", "q8", "q10", "q11", "q15", "q18", "q19", "q22", "q25", "q26", "q28", "q37", "q39", "q46"] },
+    { title: "C# and OOP", items: ["o11", "o10", "o12", "o13", "o14", "o19", "o21", "o24", "q58", "q59", "q65", "q67"] },
+    { title: "Async and concurrency", items: ["q69", "q70", "q71", "q72", "q74", "q75", "q76", "q78"] },
+    { title: "ASP.NET Core and Web APIs", items: ["q81", "o43", "q84", "q88", "q90", "q91", "q92", "q93", "q95", "q100"] },
+    { title: "Architecture and design patterns", items: ["o26", "o44", "o35", "o36", "q107", "q108", "q109", "q110", "q116", "q117", "q36"] },
+    { title: "AI, LLMs, RAG, and agents", items: ["q123", "q124", "q126", "q128", "q133", "q135", "q137", "q138", "q139", "q142", "q146", "q152", "q154", "q159", "q164", "q167", "q169", "q174", "q178"] },
+    { title: "SQL, EF Core, and Redis", items: ["q182", "q183", "q185", "q188", "q189", "q192", "q193", "q195", "q197", "q198", "q199", "q205", "sx2", "sx6"] },
+    { title: "Azure, DevOps, frontend, and testing", items: ["q211", "q214", "q215", "q222", "q231", "q233", "q240", "q251", "q253"] },
+    { title: "System design", items: ["q263", "q265", "q271", "q279"] },
+    { title: "HR and behavioural", items: ["q347", "q348", "q350", "q351", "q352", "q356", "q358", "q359", "q362"] }
+  ]
+});
+
+const TEXT = {}, ORIGIN = {};
+DATA.forEach(part => {
+  if (part.ref) return;
+  const short = part.title.split(" — ")[0];
+  part.groups.forEach(g => g.items.forEach(([id, text]) => { TEXT[id] = text; ORIGIN[id] = short; }));
+});
+
+const STORE_KEY = "practice-progress-v1";
+const HIDE_KEY = "practice-hide-done";
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+let state = load();
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function render() {
+  const content = document.getElementById("content");
+  const toc = document.getElementById("toc");
+  content.innerHTML = "";
+  toc.innerHTML = "";
+
+  DATA.forEach((part, pi) => {
+    const sid = "part-" + (pi + 1);
+    const sec = el("section", "part");
+    sec.id = sid;
+
+    const h2 = el("h2");
+    h2.appendChild(el("span", null, part.title));
+    const pc = el("span", "n");
+    pc.dataset.part = pi;
+    h2.appendChild(pc);
+    sec.appendChild(h2);
+    if (part.note) sec.appendChild(el("p", "note", part.note));
+
+    // Numbering restarts in the OOP track, otherwise runs continuously.
+    let n = 0;
+    part.groups.forEach(g => {
+      if (g.title) sec.appendChild(el("h3", null, g.title));
+      if (g.note) sec.appendChild(el("p", "note", g.note));
+      const ul = el("ul", "q");
+      g.items.forEach(item => {
+        const id = part.ref ? item : item[0];
+        const text = TEXT[id];
+        n++;
+        const li = el("li");
+        li.dataset.id = id;
+        const label = el("label");
+        const cb = el("input");
+        cb.type = "checkbox";
+        cb.checked = !!state[id];
+        cb.addEventListener("change", () => {
+          if (cb.checked) state[id] = true; else delete state[id];
+          document.querySelectorAll('li[data-id="' + id + '"]').forEach(other => {
+            other.classList.toggle("done", cb.checked);
+            other.querySelector("input").checked = cb.checked;
+          });
+          save();
+          updateCounts();
+        });
+        label.appendChild(cb);
+        label.appendChild(el("span", "num", n + "."));
+        const txt = el("span", "txt");
+        if (text.startsWith("★ ")) {
+          txt.appendChild(el("span", "star", "★ "));
+          txt.appendChild(document.createTextNode(text.slice(2)));
+        } else {
+          txt.textContent = text;
+        }
+        if (part.ref) {
+          txt.appendChild(document.createTextNode(" "));
+          txt.appendChild(el("span", "from", "(" + ORIGIN[id] + ")"));
+        }
+        label.appendChild(txt);
+        li.appendChild(label);
+        if (cb.checked) li.classList.add("done");
+        ul.appendChild(li);
+      });
+      sec.appendChild(ul);
+    });
+    if (part.footer) sec.appendChild(el("p", "note", part.footer));
+    content.appendChild(sec);
+
+    const tli = el("li");
+    const a = el("a", null, part.title);
+    a.href = "#" + sid;
+    tli.appendChild(a);
+    tli.appendChild(document.createTextNode(" "));
+    const tn = el("span", "n");
+    tn.dataset.toc = pi;
+    tli.appendChild(tn);
+    toc.appendChild(tli);
+  });
+  updateCounts();
+}
+
+function updateCounts() {
+  let all = 0, done = 0;
+  DATA.forEach((part, pi) => {
+    let pAll = 0, pDone = 0;
+    part.groups.forEach(g => g.items.forEach(item => {
+      pAll++;
+      if (state[part.ref ? item : item[0]]) pDone++;
+    }));
+    // The shortlist repeats questions, so keep it out of the overall total.
+    if (!part.ref) { all += pAll; done += pDone; }
+    const label = pDone + " / " + pAll;
+    document.querySelector('[data-part="' + pi + '"]').textContent = label;
+    document.querySelector('[data-toc="' + pi + '"]').textContent = "(" + label + ")";
+  });
+  const pct = all ? Math.round(done * 100 / all) : 0;
+  document.getElementById("total").textContent = done + " / " + all + " completed (" + pct + "%)";
+  document.getElementById("bar").style.width = pct + "%";
+}
+
+const hide = document.getElementById("hideDone");
+try { hide.checked = localStorage.getItem(HIDE_KEY) === "1"; } catch (e) {}
+document.body.classList.toggle("hide-done", hide.checked);
+hide.addEventListener("change", () => {
+  document.body.classList.toggle("hide-done", hide.checked);
+  try { localStorage.setItem(HIDE_KEY, hide.checked ? "1" : "0"); } catch (e) {}
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Clear all completed checkmarks?")) {
+    state = {};
+    save();
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
